@@ -1,0 +1,154 @@
+/* ====== Groupo Theme ====== */
+:root {
+  /* 分层背景 */
+  --bg:        #E9ECF4;   /* 页面背景（略带蓝灰） */
+  --surface:   #FFFFFF;   /* 主卡片 */
+  --surface-2: #F2F5FA;   /* 模块/侧栏底 */
+
+  /* 文字与边框 */
+  --text:   #0B1220;
+  --muted:  #5C6375;
+  --border: #CCD4E0;
+
+  /* 品牌与点缀（深蓝主色） */
+  --primary:            #1F4ED8; /* 深蓝 */
+  --primary-foreground: #FFFFFF;
+  --accent:             #3BAFDA; /* 冷色系点缀蓝绿 */
+
+  /* 状态（新增错误色） */
+  --danger:    #D92D20;                 /* 高级感深红 */
+  --danger-bg: rgba(217, 45, 32, 0.08); /* 淡红背景 */
+
+  /* 阴影 */
+  --shadow-soft:  0 6px 24px rgba(15, 25, 50, 0.08);
+  --shadow-press: 0 3px 12px rgba(15, 25, 50, 0.16);
+}
+
+/* 深色模式 */
+.dark {
+  --bg:        #0B1220;   /* 页面背景 深蓝黑 */
+  --surface:   #121A2F;   /* 主卡片 深蓝 */
+  --surface-2: #1A2238;   /* 次卡片 更深蓝灰 */
+  --text:      #E6EAF2;
+  --muted:     #8E97A8;
+  --border:    #27304A;
+
+  --primary:            #3B82F6; /* 明亮蓝色 */
+  --primary-foreground: #0B1020;
+  --accent:             #22D3EE;
+
+  --danger:    #F97066;               /* 暗色下的亮红 */
+  --danger-bg: rgba(249,112,102,0.12);
+
+  --shadow-soft:  0 8px 28px rgba(0,0,0,.35);
+  --shadow-press: 0 3px 12px rgba(0,0,0,.45);
+}
+
+/* ====== 工具类 ====== */
+html, body { background: var(--bg); color: var(--text); }
+
+.card        { background: var(--surface); border: 1px solid var(--border); border-radius: 1.25rem; box-shadow: var(--shadow-soft); }
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-press{ box-shadow: var(--shadow-press); }
+.text-main   { color: var(--text); }
+.text-muted  { color: var(--muted); }
+.border-theme{ border: 1px solid var(--border); }
+.bg-surface  { background: var(--surface); }
+.bg-surface2 { background: var(--surface-2); }
+
+/* 按钮 */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 25%, transparent);
+}
+
+.btn-chip {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.75rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  box-shadow: var(--shadow-press);
+  transition: filter 0.15s, box-shadow 0.15s;
+}
+.btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 25%, transparent);
+}
+
+/* 高级感错误消息条 */
+.error-message {
+  margin-top: .5rem;
+  font-size: .875rem;
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  line-height: 1.4;
+}
+
+/* —— 间距变量 —— */
+:root {
+  /* 容器左右内边距（移动 / 大屏） */
+  --container-px: 24px;     /* ≈ px-6 */
+  --container-px-lg: 32px;  /* ≈ px-8 */
+
+  /* 页面顶部与导航的距离 */
+  --page-gap-top: 24px;     /* ≈ mt-6 */
+
+  /* 组件网格间距 */
+  --grid-gap: 32px;         /* ≈ gap-8 */
+}
+
+/* 深色模式可保持不变，或按需微调这三个变量 */
+.dark {
+  /* 可选：保留同值即可 */
+}
+
+/* —— 通用容器：与导航栏同宽、左右留白一致 —— */
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 80rem; /* = max-w-7xl */
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+}
+@media (min-width: 1024px) {
+  .container {
+    padding-left: var(--container-px-lg);
+    padding-right: var(--container-px-lg);
+  }
+}
+
+/* 页面与导航栏的标准顶部距离 */
+.page-gap {
+  margin-top: var(--page-gap-top);
+}
+
+/* 统一的 12 栅格和 gap（可选） */
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+
+/* 竖向堆叠间距（不用每次写 mt-*） */
+.stack > * + * {
+  margin-top: var(--grid-gap);
+}

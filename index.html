@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Groupo — 首页</title>
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            morandi: {
+              bg: '#F2EFEA',
+              surface: '#F8F6F2',
+              primary: '#8F95A3',
+              accent: '#B8A1C7',
+              mint: '#B7C9B9',
+              clay: '#C8B6A6',
+              ink: '#3D3A37'
+            }
+          },
+          boxShadow: {
+            soft: '0 6px 24px rgba(0,0,0,0.06)'
+          },
+          borderRadius: {
+            xl2: '1rem',
+            xl3: '1.25rem'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+      :root{
+          --bg:#F2EFEA; --surface:#F8F6F2; --primary:#8F95A3; --accent:#B8A1C7; --mint:#B7C9B9; --clay:#C8B6A6; --ink:#3D3A37;
+          --glass: rgba(255,255,255,.65);
+      }
+      .float-in{ animation: float-in .5s cubic-bezier(.2,.6,.2,1) both; }
+      @keyframes float-in{ from{opacity:0; transform: translateY(8px) scale(.98)} to{opacity:1; transform: translateY(0) scale(1)} }
+  </style>
+</head>
+<body class="min-h-screen" style="background: var(--bg)">
+<div id="app"></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
