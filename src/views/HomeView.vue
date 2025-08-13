@@ -4,11 +4,12 @@
       <div class="col-span-12 lg:col-span-7 float-in">
         <div class="card p-8">
           <h1 class="text-4xl font-semibold text-main">
-            Groupo · 为大学团队打造的
+            Groupo ·
             <span :style="{ color: 'var(--primary)' }">项目管理工具</span>
           </h1>
           <p class="mt-4 leading-7 subtle">
-            减少沟通成本，明确任务责任，量化贡献。桌面端优先，卡片式布局、丝滑动画、莫兰迪配色，让协作既高效又优雅。
+            减少沟通成本 · 明确任务责任 · 量化贡献<br>
+            让协作既高效又优雅
           </p>
 
           <div class="mt-6 flex items-center gap-3">
@@ -35,7 +36,7 @@
         <div class="card p-6">
           <h2 class="text-lg font-medium text-main">为什么选择 Groupo？</h2>
           <p class="mt-2 subtle">
-            专为学生团队的节奏设计：更轻的流程、更清晰的任务关系、更直观的进度反馈。
+            专为小型团队的节奏设计：更轻的流程、更清晰的任务关系、更直观的进度反馈。
           </p>
           <div class="mt-4 grid grid-cols-2 gap-3">
             <div class="p-4 rounded-2xl bg-surface2 border-theme">
@@ -52,7 +53,7 @@
             </div>
             <div class="p-4 rounded-2xl bg-surface2 border-theme">
               <div class="text-sm font-medium text-main">丝滑体验</div>
-              <div class="text-xs subtle mt-1">桌面端优先的交互与快捷键</div>
+              <div class="text-xs subtle mt-1">我不管，反正我设计的就是好看</div>
             </div>
           </div>
         </div>

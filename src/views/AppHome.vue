@@ -1,35 +1,12 @@
 <template>
   <div class="container page-gap">
     <div class="grid grid-cols-12 gap-6 lg:gap-8">
-      <!-- 左侧：进行中的看板 -->
+      <!-- 左侧：进行中的项目 -->
       <div class="col-span-12 lg:col-span-8">
-        <div class="card p-6">
-          <div class="flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-main">进行中的看板</h2>
-            <RouterLink to="/app/boards" class="btn-ghost text-sm">全部看板</RouterLink>
-          </div>
-
-          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <RouterLink to="/app/boards/1" class="tile">
-              <div class="flex items-start justify-between">
-                <div class="font-medium text-main">课程项目 · Sprint 3</div>
-                <span class="badge badge-primary">进行中</span>
-              </div>
-              <div class="text-xs text-muted mt-2">12 张卡片 · 截止 周五</div>
-            </RouterLink>
-
-            <RouterLink to="/app/boards/2" class="tile">
-              <div class="flex items-start justify-between">
-                <div class="font-medium text-main">社团招新官网</div>
-                <span class="badge badge-accent">评审中</span>
-              </div>
-              <div class="text-xs text-muted mt-2">8 张卡片 · 评审中</div>
-            </RouterLink>
-          </div>
-        </div>
+        <OngoingProjects :projects="projects" @created="onProjectCreated" />
       </div>
 
-      <!-- 右侧：我的待办 -->
+      <!-- 右侧：我的待办（示例不变） -->
       <div class="col-span-12 lg:col-span-4">
         <div class="card p-6">
           <div class="flex items-center justify-between">
@@ -57,51 +34,48 @@
   </div>
 </template>
 
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
+import OngoingProjects from '@/components/OngoingProjects.vue'
+import type { ProjectItem } from '@/types/project'
+import { getMyProjects } from '@/api/projects'
+
+const projects = ref<ProjectItem[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+async function fetchMyOngoing() {
+  loading.value = true
+  error.value = null
+  try {
+    const { data } = await getMyProjects({
+      status: 'ONGOING',
+      page: 0,
+      size: 8,
+      sort: 'lastActivityAt,DESC'
+    })
+    // 后端如果返回的是 Spring Data Page
+    projects.value = Array.isArray(data?.content) ? data.content : data
+  } catch (e: any) {
+    error.value = e?.response?.data?.detail || e?.message || '加载项目失败'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchMyOngoing)
+
+// 子组件新建成功：把新项目插在最前面（也可以选择调用 fetchMyOngoing() 刷新）
+function onProjectCreated(p: ProjectItem) {
+  projects.value = [p, ...projects.value]
+}
+</script>
+
 <style scoped>
-.tile {
-  display: block;
-  padding: 1rem;
-  border-radius: 1rem;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  transition: box-shadow .18s ease, transform .18s ease, background .18s ease, border-color .18s ease;
-}
-.tile:hover {
-  background: color-mix(in oklab, var(--surface-2) 85%, var(--primary) 15%);
-  border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 22%, transparent);
-  transform: translateY(-2px);
-}
-.tile:active { transform: translateY(-1px); }
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .15rem .5rem;
-  border-radius: .5rem;
-  font-size: .75rem;
-  border: 1px solid var(--border);
-  color: var(--text);
-  background: var(--surface-2);
-}
-.badge-primary {
-  border-color: color-mix(in oklab, var(--primary) 55%, var(--border));
-  background: color-mix(in oklab, var(--primary) 20%, var(--surface-2));
-}
-.badge-accent {
-  border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
-  background: color-mix(in oklab, var(--accent) 18%, var(--surface-2));
-}
-
 .todo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  padding: .75rem .9rem;
-  border-radius: .75rem;
-  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .75rem .9rem; border-radius: .75rem; background: var(--surface-2);
   border: 1px solid var(--border);
   transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
@@ -110,13 +84,7 @@
   border-color: color-mix(in oklab, var(--primary) 35%, var(--border));
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 18%, transparent);
 }
-
-.chip {
-  padding: .2rem .5rem;
-  border-radius: .5rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font-size: .75rem;
-}
+.chip { padding: .2rem .5rem; border-radius: .5rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .75rem; }
+.btn-ghost { padding: .35rem .7rem; border-radius: .6rem; background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-ghost:hover { background: var(--surface-2); }
 </style>

@@ -1,19 +1,7 @@
 import { defineStore } from 'pinia'
-import { http } from '@/lib/http'
+import { http } from '@/api/http'
 
-type Tokens = { accessToken: string | null; refreshToken: string | null }
-type User = { uid?: string; name?: string; email?: string } | null
-
-const STORAGE_KEY = 'groupo_auth'
-
-function decodeJwtPayload(token: string | null): any | null {
-  if (!token) return null
-  try {
-    const payload = token.split('.')[1]
-    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
-    return JSON.parse(decodeURIComponent(escape(json)))
-  } catch { return null }
-}
+type User = { id: string; email: string; name?: string } | null
 
 export const useAuth = defineStore('auth', {
   state: () => ({
@@ -21,54 +9,73 @@ export const useAuth = defineStore('auth', {
     refreshToken: null as string | null,
     user: null as User,
   }),
+
   getters: {
+    // 兼容你的守卫：auth.token / auth.isAuthed
+    token: (s) => s.accessToken,
     isAuthed: (s) => !!s.accessToken,
   },
+
   actions: {
+    /** 从本地恢复登录态并刷新 http 头 */
     loadFromStorage() {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (!raw) return
-      const data = JSON.parse(raw)
-      this.accessToken = data.accessToken
-      this.refreshToken = data.refreshToken
-      this.user = data.user
-    },
-    persist() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        accessToken: this.accessToken,
-        refreshToken: this.refreshToken,
-        user: this.user,
-      }))
-    },
-    async applyTokens(accessToken: string, refreshToken?: string) {
-      this.accessToken = accessToken
-      if (refreshToken) this.refreshToken = refreshToken
-      // 从 accessToken 里取你后端塞的 name / email / uid
-      const payload = decodeJwtPayload(this.accessToken)
-      this.user = {
-        uid: payload?.uid || payload?.sub,
-        name: payload?.name,
-        email: payload?.sub?.includes('@') ? payload.sub : undefined,
+      this.accessToken = localStorage.getItem('accessToken')
+      this.refreshToken = localStorage.getItem('refreshToken')
+      const u = localStorage.getItem('user')
+      this.user = u ? JSON.parse(u) : null
+      if (this.accessToken) {
+        http.defaults.headers.Authorization = `Bearer ${this.accessToken}`
       }
-      this.persist()
     },
-    async register(name: string, email: string, password: string) {
-      // POST {{baseUrl}}/api/v1/auth/register
-      await http.post('/auth/register', { name, email, password })
-      // 常见做法：注册成功后直接登录
-      await this.login(email, password)
+
+    setTokens(access: string, refresh?: string) {
+      this.accessToken = access
+      localStorage.setItem('accessToken', access)
+      http.defaults.headers.Authorization = `Bearer ${access}`
+      if (refresh) {
+        this.refreshToken = refresh
+        localStorage.setItem('refreshToken', refresh)
+      }
     },
-    async login(email: string, password: string) {
-      // POST {{baseUrl}}/api/v1/auth/login
-      const { data } = await http.post('/auth/login', { email, password })
-      // 你的返回结构示例里是 { accessToken, refreshToken }
-      await this.applyTokens(data.accessToken, data.refreshToken)
+
+    setUser(u: NonNullable<User>) {
+      this.user = u
+      localStorage.setItem('user', JSON.stringify(u))
     },
-    async logout() {
+
+    logout() {
       this.accessToken = null
       this.refreshToken = null
       this.user = null
-      localStorage.removeItem(STORAGE_KEY)
-    }
-  }
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('user')
+      delete http.defaults.headers.Authorization
+    },
+
+    /** 登录：保存 token（必要时可再请求 /api/debug/me 拿用户信息） */
+    async login(email: string, password: string) {
+      const { data } = await http.post('/api/v1/auth/login', { email, password })
+      // 你的后端返回 { accessToken, refreshToken }
+      this.setTokens(data.accessToken, data.refreshToken)
+      // 可选：如果你需要用户信息，可以在这里请求 /api/debug/me 并 setUser(...)
+      // const me = await http.get('/api/debug/me'); this.setUser({...})
+    },
+
+    /** 注册并自动登录 */
+    async register(name: string, email: string, password: string) {
+      await http.post('/api/v1/auth/register', { name, email, password })
+      // 注册成功后直接复用登录
+      await this.login(email, password)
+    },
+
+    /** 用 refreshToken 换新 accessToken（可在拦截器里用） */
+    async refresh() {
+      if (!this.refreshToken) throw new Error('No refresh token')
+      const { data } = await http.post('/api/v1/auth/refresh', {
+        refreshToken: this.refreshToken,
+      })
+      this.setTokens(data.accessToken, data.refreshToken) // 你的后端返回的是 {accessToken, refreshToken}
+    },
+  },
 })

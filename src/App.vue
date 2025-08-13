@@ -9,7 +9,7 @@
     </main>
 
     <footer class="site-footer">
-      Morandi 色系 · 圆角卡片 · 轻毛玻璃 · 桌面端优先
+      明确分工 · 拒绝废话
     </footer>
   </div>
 </template>
